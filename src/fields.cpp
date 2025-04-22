@@ -25,6 +25,10 @@
 #include "meep.hpp"
 #include "meep_internals.hpp"
 
+#ifdef MEEP_WITH_CUDA
+#include "cuda_resource_manager.cuh"
+#endif
+
 using namespace std;
 
 namespace meep {
@@ -202,6 +206,13 @@ fields_chunk::~fields_chunk() {
   }
   if (s->refcount-- <= 1) delete s;                  // delete if not shared
   if (new_s && new_s->refcount-- <= 1) delete new_s; // delete if not shared
+
+#ifdef MEEP_WITH_CUDA
+  if (cuda_resources) {
+    delete cuda_resources;
+    cuda_resources = nullptr;
+  }
+#endif
 }
 
 void split_into_tiles(grid_volume gvol, std::vector<grid_volume> *result,
@@ -297,6 +308,10 @@ fields_chunk::fields_chunk(structure_chunk *the_s, const char *od, double m, dou
     num_zeroes[ft] = 0;
   }
   figure_out_step_plan();
+#ifdef MEEP_WITH_CUDA
+  cuda_resources = new cuda::CudaResourceManager();
+  cuda_resources->init(this);
+#endif
 }
 
 fields_chunk::fields_chunk(const fields_chunk &thef, int chunkidx) : gv(thef.gv), v(thef.v) {
@@ -393,6 +408,10 @@ fields_chunk::fields_chunk(const fields_chunk &thef, int chunkidx) : gv(thef.gv)
   }
   f_rderiv_int = NULL;
   figure_out_step_plan();
+#ifdef MEEP_WITH_CUDA
+  cuda_resources = new cuda::CudaResourceManager();
+  cuda_resources->init(this);
+#endif
 }
 
 static inline bool cross_negative(direction a, direction b) {

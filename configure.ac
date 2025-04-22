@@ -32,6 +32,53 @@ fi
 AC_SUBST(MEEP_SINGLE)
 
 ##############################################################################
+# build with CUDA
+
+AC_ARG_ENABLE([cuda],
+    [AS_HELP_STRING([--enable-cuda],
+        [enable CUDA support @<:@default=no@:>@])],
+    [enable_cuda=$enableval],
+    [enable_cuda=no])
+
+have_cuda=no
+NVCC=
+CUDA_CFLAGS=
+CUDA_LIBS=
+
+if test "x$enable_cuda" = "xyes"; then
+    AC_PATH_PROG([NVCC], [nvcc], [no])
+
+    if test "x$NVCC" = "xno"; then
+        AC_MSG_ERROR([CUDA requested but nvcc not found])
+    fi
+
+    cuda_prefix=$(dirname $(dirname $NVCC))
+    CUDA_CFLAGS="-I$cuda_prefix/include"
+    CUDA_LIBS="-L$cuda_prefix/lib64 -lcudart"
+
+    AC_MSG_CHECKING([for working nvcc])
+    cat > conftest.cu << EOF
+    #include <cuda_runtime.h>
+    int main() { return 0; }
+EOF
+    if $NVCC -c conftest.cu > /dev/null 2>&1; then
+        AC_MSG_RESULT([yes])
+        have_cuda=yes
+        AC_DEFINE([MEEP_WITH_CUDA], [1], [Define if CUDA support is enabled])
+    else
+        AC_MSG_RESULT([no])
+        have_cuda=no
+        AC_MSG_ERROR([CUDA compiler not working])
+    fi
+    rm -f conftest.cu conftest.o
+fi
+
+AC_SUBST(NVCC)
+AC_SUBST(CUDA_CFLAGS)
+AC_SUBST(CUDA_LIBS)
+AM_CONDITIONAL([WITH_CUDA], [test "x$have_cuda" = "xyes"])
+
+##############################################################################
 # build with SWIG threads for Python
 
 AC_ARG_ENABLE(swig-python-threads,

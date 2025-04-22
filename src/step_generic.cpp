@@ -32,6 +32,40 @@ namespace meep {
     b = xxxx;                                                                                      \
   }
 
+#ifdef MEEP_WITH_CUDA
+namespace cuda {
+void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1, ptrdiff_t s2,
+                    const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx,
+                    direction dsig, const RPR sig, const RPR kap, const RPR siginv, RPR fu,
+                    direction dsigu, const RPR sigu, const RPR kapu, const RPR siginvu, realnum dt,
+                    const RPR cnd, const RPR cndinv, RPR fcnd, CudaResourceManager *cuda_resources);
+
+// Declaration for stride1 version
+void cuda_step_curl_stride1(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1,
+                            ptrdiff_t s2, const grid_volume &gv, const ivec is, const ivec ie,
+                            realnum dtdx, direction dsig, const RPR sig, const RPR kap,
+                            const RPR siginv, RPR fu, direction dsigu, const RPR sigu,
+                            const RPR kapu, const RPR siginvu, realnum dt, const RPR cnd,
+                            const RPR cndinv, RPR fcnd, CudaResourceManager *cuda_resources);
+
+void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1, ptrdiff_t s2,
+                     const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx,
+                     direction dsig, const RPR sig, const RPR kap, const RPR siginv, RPR fu,
+                     direction dsigu, const RPR sigu, const RPR kapu, const RPR siginvu, realnum dt,
+                     const RPR cnd, const RPR cndinv, RPR fcnd, RPR F, realnum k1, realnum k2,
+                     CudaResourceManager *cuda_resources);
+
+// Declaration for stride1 version
+void cuda_step_bfast_stride1(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1,
+                             ptrdiff_t s2, const grid_volume &gv, const ivec is, const ivec ie,
+                             realnum dtdx, direction dsig, const RPR sig, const RPR kap,
+                             const RPR siginv, RPR fu, direction dsigu, const RPR sigu,
+                             const RPR kapu, const RPR siginvu, realnum dt, const RPR cnd,
+                             const RPR cndinv, RPR fcnd, RPR F, realnum k1, realnum k2,
+                             CudaResourceManager *cuda_resources);
+} // namespace cuda
+#endif
+
 /* update step for df/dt = curl g,
    i.e. f += dt curl g = dt/dx (dg1 - dg2)
    where dgk = gk[i] - gk[i+sk].
@@ -62,12 +96,25 @@ namespace meep {
        df/dt = dfu/dt - sigma_u * f
    and fu replaces f in the equations above (fu += dt curl g etcetera).
 */
+#ifdef MEEP_WITH_CUDA
+void step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1,
+               ptrdiff_t s2, // strides for g1/g2 shift
+               const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx, direction dsig,
+               const RPR sig, const RPR kap, const RPR siginv, RPR fu, direction dsigu,
+               const RPR sigu, const RPR kapu, const RPR siginvu, realnum dt, const RPR cnd,
+               const RPR cndinv, RPR fcnd, cuda::CudaResourceManager *cuda_resources) {
+  cuda::cuda_step_curl(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu,
+                       sigu, kapu, siginvu, dt, cnd, cndinv, fcnd, cuda_resources);
+  return;
+#else
 void step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1,
                ptrdiff_t s2, // strides for g1/g2 shift
                const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx, direction dsig,
                const RPR sig, const RPR kap, const RPR siginv, RPR fu, direction dsigu,
                const RPR sigu, const RPR kapu, const RPR siginvu, realnum dt, const RPR cnd,
                const RPR cndinv, RPR fcnd) {
+#endif
+
   (void)c;   // currently unused
   if (!g1) { // swap g1 and g2
     SWAP(const RPR, g1, g2);
@@ -332,12 +379,26 @@ void step_beta(RPR f, component c, const RPR g, const grid_volume &gv, const ive
   }
 }
 // allows fixed angle broadband simulations
+#ifdef MEEP_WITH_CUDA
+void step_bfast(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1,
+                ptrdiff_t s2, // strides for g1/g2 shift
+                const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx, direction dsig,
+                const RPR sig, const RPR kap, const RPR siginv, RPR fu, direction dsigu,
+                const RPR sigu, const RPR kapu, const RPR siginvu, realnum dt, const RPR cnd,
+                const RPR cndinv, RPR fcnd, RPR F, realnum k1, realnum k2,
+                cuda::CudaResourceManager *cuda_resources) {
+  cuda::cuda_step_bfast(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu,
+                        sigu, kapu, siginvu, dt, cnd, cndinv, fcnd, F, k1, k2, cuda_resources);
+  return;
+#else
 void step_bfast(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1,
                 ptrdiff_t s2, // strides for g1/g2 shift
                 const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx, direction dsig,
                 const RPR sig, const RPR kap, const RPR siginv, RPR fu, direction dsigu,
                 const RPR sigu, const RPR kapu, const RPR siginvu, realnum dt, const RPR cnd,
                 const RPR cndinv, RPR fcnd, RPR F, realnum k1, realnum k2) {
+#endif
+
   (void)c;   // currently unused
   if (!g1) { // swap g1 and g2
     SWAP(const RPR, g1, g2);

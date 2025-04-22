@@ -9,6 +9,7 @@ BUILT_SOURCES = sphere-quad.h step_generic_stride1.cpp meep/meep-config.h
 HDRS = meep.hpp meep_internals.hpp meep/mympi.hpp meep/vec.hpp	\
 bicgstab.hpp meepgeom.hpp material_data.hpp adjust_verbosity.hpp
 
+# Base sources
 libmeep_la_SOURCES = array_slice.cpp anisotropic_averaging.cpp 		\
 bands.cpp boundaries.cpp bicgstab.cpp casimir.cpp 	\
 cw_fields.cpp dft.cpp dft_ldos.cpp energy_and_flux.cpp 	\
@@ -19,9 +20,22 @@ sources.cpp step.cpp step_db.cpp stress.cpp structure.cpp structure_dump.cpp		\
 susceptibility.cpp time.cpp update_eh.cpp mpb.cpp update_pols.cpp 	\
 vec.cpp step_generic.cpp meepgeom.cpp GDSIIgeom.cpp $(HDRS) $(BUILT_SOURCES)
 
-SUBDIRS = support
-libmeep_la_LIBADD = support/libsupport.la
+# CUDA specific rules
+if WITH_CUDA
+step_generic_cuda.o: step_generic_cuda.cu
+	$(NVCC) --compiler-options "-fPIC" $(CPPFLAGS) $(CUDA_CFLAGS) -DMEEP_WITH_CUDA=1 -c $< -o $@
 
+cuda_resource_manager.o: cuda_resource_manager.cu
+	$(NVCC) --compiler-options "-fPIC" $(CPPFLAGS) $(CUDA_CFLAGS) -DMEEP_WITH_CUDA=1 -c $< -o $@
+
+EXTRA_libmeep_la_OBJECTS = step_generic_cuda.o cuda_resource_manager.o
+
+libmeep_la_LIBADD = support/libsupport.la $(CUDA_LIBS) step_generic_cuda.o cuda_resource_manager.o
+else
+libmeep_la_LIBADD = support/libsupport.la
+endif
+
+SUBDIRS = support
 libmeep_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
 PRELUDE = "/* This file was automatically generated --- DO NOT EDIT */"
@@ -35,5 +49,9 @@ sphere-quad.h:
 
 step_generic_stride1.cpp: step_generic.cpp
 	(echo $(PRELUDE); echo; sed 's/LOOP_OVER/S1LOOP_OVER/g' $(top_srcdir)/src/step_generic.cpp | sed 's/step_curl/step_curl_stride1/' | sed 's/step_update_EDHB/step_update_EDHB_stride1/' | sed 's/step_beta/step_beta_stride1/'| sed 's/step_bfast/step_bfast_stride1/') > $@
+
+if WITH_CUDA
+CLEANFILES = step_generic_cuda.o cuda_resource_manager.o
+endif
 
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)

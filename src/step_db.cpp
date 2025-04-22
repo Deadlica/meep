@@ -24,6 +24,10 @@
 #include "meep.hpp"
 #include "meep_internals.hpp"
 
+#ifdef MEEP_WITH_CUDA
+#include "cuda_resource_manager.cuh"
+#endif
+
 #define RESTRICT
 
 using namespace std;
@@ -121,10 +125,18 @@ bool fields_chunk::step_db(field_type ft) {
             default: meep::abort("bug - non-cylindrical field component in Dcyl");
           }
 
+#ifdef MEEP_WITH_CUDA
+        cuda_resources->sync_to_device(this, cc, cmp, dsig, dsigu, d_c, f_p, f_m);
+        STEP_CURL(the_f, cc, f_p, f_m, stride_p, stride_m, gv, sub_gv.little_owned_corner0(cc),
+                  sub_gv.big_corner(), Courant, dsig, s->sig[dsig], s->kap[dsig], s->siginv[dsig],
+                  f_u[cc][cmp], dsigu, s->sig[dsigu], s->kap[dsigu], s->siginv[dsigu], dt,
+                  s->conductivity[cc][d_c], s->condinv[cc][d_c], f_cond[cc][cmp], cuda_resources);
+#else
         STEP_CURL(the_f, cc, f_p, f_m, stride_p, stride_m, gv, sub_gv.little_owned_corner0(cc),
                   sub_gv.big_corner(), Courant, dsig, s->sig[dsig], s->kap[dsig], s->siginv[dsig],
                   f_u[cc][cmp], dsigu, s->sig[dsigu], s->kap[dsigu], s->siginv[dsigu], dt,
                   s->conductivity[cc][d_c], s->condinv[cc][d_c], f_cond[cc][cmp]);
+#endif
 
         if (use_bfast) {
           realnum k1 =
@@ -135,12 +147,23 @@ bool fields_chunk::step_db(field_type ft) {
             k1 = -k1;
             k2 = -k2;
           }
+#ifdef MEEP_WITH_CUDA
+          STEP_BFAST(the_f, cc, f_p, f_m, stride_p, stride_m, gv, sub_gv.little_owned_corner0(cc),
+                     sub_gv.big_corner(), Courant, dsig, s->sig[dsig], s->kap[dsig],
+                     s->siginv[dsig], f_u[cc][cmp], dsigu, s->sig[dsigu], s->kap[dsigu],
+                     s->siginv[dsigu], dt, s->conductivity[cc][d_c], s->condinv[cc][d_c],
+                     f_cond[cc][cmp], f_bfast[cc][cmp], k1, k2, cuda_resources);
+#else
           STEP_BFAST(the_f, cc, f_p, f_m, stride_p, stride_m, gv, sub_gv.little_owned_corner0(cc),
                      sub_gv.big_corner(), Courant, dsig, s->sig[dsig], s->kap[dsig],
                      s->siginv[dsig], f_u[cc][cmp], dsigu, s->sig[dsigu], s->kap[dsigu],
                      s->siginv[dsigu], dt, s->conductivity[cc][d_c], s->condinv[cc][d_c],
                      f_cond[cc][cmp], f_bfast[cc][cmp], k1, k2);
+#endif
         }
+#ifdef MEEP_WITH_CUDA
+        cuda_resources->sync_from_device(this, cc, cmp);
+#endif
       }
     }
   }

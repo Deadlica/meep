@@ -87,12 +87,22 @@ symmetry r_to_minus_r_symmetry(int m);
 
 // functions in step_generic.cpp:
 
+#ifdef MEEP_WITH_CUDA
+void step_curl(realnum *f, component c, const realnum *g1, const realnum *g2, ptrdiff_t s1,
+               ptrdiff_t s2, // strides for g1/g2 shift
+               const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx, direction dsig,
+               const realnum *sig, const realnum *kap, const realnum *siginv, realnum *fu,
+               direction dsigu, const realnum *sigu, const realnum *kapu, const realnum *siginvu,
+               realnum dt, const realnum *cnd, const realnum *cndinv, realnum *fcnd,
+               cuda::CudaResourceManager *cuda_resources);
+#else
 void step_curl(realnum *f, component c, const realnum *g1, const realnum *g2, ptrdiff_t s1,
                ptrdiff_t s2, // strides for g1/g2 shift
                const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx, direction dsig,
                const realnum *sig, const realnum *kap, const realnum *siginv, realnum *fu,
                direction dsigu, const realnum *sigu, const realnum *kapu, const realnum *siginvu,
                realnum dt, const realnum *cnd, const realnum *cndinv, realnum *fcnd);
+#endif
 
 void step_update_EDHB(realnum *f, component fc, const grid_volume &gv, const ivec is, const ivec ie,
                       const realnum *g, const realnum *g1, const realnum *g2, const realnum *u,
@@ -104,6 +114,15 @@ void step_beta(realnum *f, component c, const realnum *g, const grid_volume &gv,
                const ivec ie, realnum betadt, direction dsig, const realnum *siginv, realnum *fu,
                direction dsigu, const realnum *siginvu, const realnum *cndinv, realnum *fcnd);
 
+#ifdef MEEP_WITH_CUDA
+void step_bfast(realnum *f, component c, const realnum *g1, const realnum *g2, ptrdiff_t s1,
+                ptrdiff_t s2, // strides for g1/g2 shift
+                const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx, direction dsig,
+                const realnum *sig, const realnum *kap, const realnum *siginv, realnum *fu,
+                direction dsigu, const realnum *sigu, const realnum *kapu, const realnum *siginvu,
+                realnum dt, const realnum *cnd, const realnum *cndinv, realnum *fcnd, realnum *F,
+                realnum k1, realnum k2, cuda::CudaResourceManager *cuda_resources);
+#else
 void step_bfast(realnum *f, component c, const realnum *g1, const realnum *g2, ptrdiff_t s1,
                 ptrdiff_t s2, // strides for g1/g2 shift
                 const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx, direction dsig,
@@ -111,9 +130,20 @@ void step_bfast(realnum *f, component c, const realnum *g1, const realnum *g2, p
                 direction dsigu, const realnum *sigu, const realnum *kapu, const realnum *siginvu,
                 realnum dt, const realnum *cnd, const realnum *cndinv, realnum *fcnd, realnum *F,
                 realnum k1, realnum k2);
+#endif
 
 // functions in step_generic_stride1.cpp, generated from step_generic.cpp:
 
+#ifdef MEEP_WITH_CUDA
+void step_curl_stride1(realnum *f, component c, const realnum *g1, const realnum *g2, ptrdiff_t s1,
+                       ptrdiff_t s2, // strides for g1/g2 shift
+                       const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx,
+                       direction dsig, const realnum *sig, const realnum *kap,
+                       const realnum *siginv, realnum *fu, direction dsigu, const realnum *sigu,
+                       const realnum *kapu, const realnum *siginvu, realnum dt, const realnum *cnd,
+                       const realnum *cndinv, realnum *fcnd,
+                       cuda::CudaResourceManager *cuda_resources);
+#else
 void step_curl_stride1(realnum *f, component c, const realnum *g1, const realnum *g2, ptrdiff_t s1,
                        ptrdiff_t s2, // strides for g1/g2 shift
                        const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx,
@@ -121,6 +151,7 @@ void step_curl_stride1(realnum *f, component c, const realnum *g1, const realnum
                        const realnum *siginv, realnum *fu, direction dsigu, const realnum *sigu,
                        const realnum *kapu, const realnum *siginvu, realnum dt, const realnum *cnd,
                        const realnum *cndinv, realnum *fcnd);
+#endif
 
 void step_update_EDHB_stride1(realnum *f, component fc, const grid_volume &gv, const ivec is,
                               const ivec ie, const realnum *g, const realnum *g1, const realnum *g2,
@@ -134,6 +165,16 @@ void step_beta_stride1(realnum *f, component c, const realnum *g, const grid_vol
                        const realnum *siginv, realnum *fu, direction dsigu, const realnum *siginvu,
                        const realnum *cndinv, realnum *fcnd);
 
+#ifdef MEEP_WITH_CUDA
+void step_bfast_stride1(realnum *f, component c, const realnum *g1, const realnum *g2, ptrdiff_t s1,
+                        ptrdiff_t s2, // strides for g1/g2 shift
+                        const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx,
+                        direction dsig, const realnum *sig, const realnum *kap,
+                        const realnum *siginv, realnum *fu, direction dsigu, const realnum *sigu,
+                        const realnum *kapu, const realnum *siginvu, realnum dt, const realnum *cnd,
+                        const realnum *cndinv, realnum *fcnd, realnum *F, realnum k1, realnum k2,
+                        cuda::CudaResourceManager *cuda_resources);
+#else
 void step_bfast_stride1(realnum *f, component c, const realnum *g1, const realnum *g2, ptrdiff_t s1,
                         ptrdiff_t s2, // strides for g1/g2 shift
                         const grid_volume &gv, const ivec is, const ivec ie, realnum dtdx,
@@ -141,12 +182,25 @@ void step_bfast_stride1(realnum *f, component c, const realnum *g1, const realnu
                         const realnum *siginv, realnum *fu, direction dsigu, const realnum *sigu,
                         const realnum *kapu, const realnum *siginvu, realnum dt, const realnum *cnd,
                         const realnum *cndinv, realnum *fcnd, realnum *F, realnum k1, realnum k2);
+#endif
 
 /* macro wrappers around time-stepping functions: for performance reasons,
    if the inner loop is stride-1 then we use the stride-1 versions,
    which allow gcc (and possibly other compilers) to do additional
    optimizations, especially loop vectorization */
 
+#ifdef MEEP_WITH_CUDA
+#define STEP_CURL(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu, sigu, \
+                  kapu, siginvu, dt, cnd, cndinv, fcnd, cuda_resources)                            \
+  do {                                                                                             \
+    if (LOOPS_ARE_STRIDE1(gv))                                                                     \
+      step_curl_stride1(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu, \
+                        sigu, kapu, siginvu, dt, cnd, cndinv, fcnd, cuda_resources);               \
+    else                                                                                           \
+      step_curl(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu, sigu,   \
+                kapu, siginvu, dt, cnd, cndinv, fcnd, cuda_resources);                             \
+  } while (0)
+#else
 #define STEP_CURL(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu, sigu, \
                   kapu, siginvu, dt, cnd, cndinv, fcnd)                                            \
   do {                                                                                             \
@@ -157,6 +211,7 @@ void step_bfast_stride1(realnum *f, component c, const realnum *g1, const realnu
       step_curl(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu, sigu,   \
                 kapu, siginvu, dt, cnd, cndinv, fcnd);                                             \
   } while (0)
+#endif
 
 #define STEP_UPDATE_EDHB(f, fc, gv, is, ie, g, g1, g2, u, u1, u2, s, s1, s2, chi2, chi3, fw,       \
                          dsigw, sigw, kapw)                                                        \
@@ -178,6 +233,19 @@ void step_bfast_stride1(realnum *f, component c, const realnum *g1, const realnu
       step_beta(f, c, g, gv, is, ie, betadt, dsig, siginv, fu, dsigu, siginvu, cndinv, fcnd);      \
   } while (0)
 
+#ifdef MEEP_WITH_CUDA
+#define STEP_BFAST(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu,      \
+                   sigu, kapu, siginvu, dt, cnd, cndinv, fcnd, F, k1, k2, cuda_resources)          \
+  do {                                                                                             \
+    if (LOOPS_ARE_STRIDE1(gv))                                                                     \
+      step_bfast_stride1(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu,       \
+                         dsigu, sigu, kapu, siginvu, dt, cnd, cndinv, fcnd, F, k1, k2,             \
+                         cuda_resources);                                                          \
+    else                                                                                           \
+      step_bfast(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu, sigu,  \
+                 kapu, siginvu, dt, cnd, cndinv, fcnd, F, k1, k2, cuda_resources);                 \
+  } while (0)
+#else
 #define STEP_BFAST(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu,      \
                    sigu, kapu, siginvu, dt, cnd, cndinv, fcnd, F, k1, k2)                          \
   do {                                                                                             \
@@ -188,6 +256,7 @@ void step_bfast_stride1(realnum *f, component c, const realnum *g1, const realnu
       step_bfast(f, c, g1, g2, s1, s2, gv, is, ie, dtdx, dsig, sig, kap, siginv, fu, dsigu, sigu,  \
                  kapu, siginvu, dt, cnd, cndinv, fcnd, F, k1, k2);                                 \
   } while (0)
+#endif
 
 // analytical Green's functions from near2far.cpp, which we might want to expose someday
 void green3d(std::complex<double> *EH, const vec &x, double freq, double eps, double mu,

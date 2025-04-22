@@ -31,6 +31,9 @@
 #include "meep/mympi.hpp"
 #include "meep/meep-config.h"
 
+// For CUDA build
+#include "../config.h"
+
 namespace meep {
 
 /* The (time-domain) fields arrays of the fields_chunk class as well
@@ -1456,6 +1459,10 @@ typedef struct polarization_state_s {
   struct polarization_state_s *next; // linked list
 } polarization_state;
 
+namespace cuda {
+class CudaResourceManager;
+} // namespace cuda
+
 class fields_chunk {
 public:
   realnum *f[NUM_FIELD_COMPONENTS][2]; // fields at current time
@@ -1604,6 +1611,10 @@ private:
   int max_decimation() const;
 
   void changing_structure();
+
+#ifdef MEEP_WITH_CUDA
+  cuda::CudaResourceManager *cuda_resources = nullptr;
+#endif
 };
 
 enum boundary_condition { Periodic = 0, Metallic, Magnetic, None };
