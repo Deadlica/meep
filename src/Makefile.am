@@ -23,10 +23,10 @@ vec.cpp step_generic.cpp meepgeom.cpp GDSIIgeom.cpp $(HDRS) $(BUILT_SOURCES)
 # CUDA specific rules
 if WITH_CUDA
 step_generic_cuda.o: step_generic_cuda.cu
-	$(NVCC) --compiler-options "-fPIC" $(CPPFLAGS) $(CUDA_CFLAGS) -DMEEP_WITH_CUDA=1 -c $< -o $@
+	$(NVCC) --compiler-options "-fPIC -g" -G -lineinfo $(CPPFLAGS) $(CUDA_CFLAGS) -DMEEP_WITH_CUDA=1 -c $< -o $@
 
 cuda_resource_manager.o: cuda_resource_manager.cu
-	$(NVCC) --compiler-options "-fPIC" $(CPPFLAGS) $(CUDA_CFLAGS) -DMEEP_WITH_CUDA=1 -c $< -o $@
+	$(NVCC) --compiler-options "-fPIC -g" -G -lineinfo $(CPPFLAGS) $(CUDA_CFLAGS) -DMEEP_WITH_CUDA=1 -c $< -o $@
 
 EXTRA_libmeep_la_OBJECTS = step_generic_cuda.o cuda_resource_manager.o
 

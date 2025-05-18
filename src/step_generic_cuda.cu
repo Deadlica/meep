@@ -688,6 +688,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
   (void)c;   // currently unused
   if (!g1) { // swap g1 and g2
     SWAP(const RPR, g1, g2);
+    SWAP(RPR, cuda_resources->d_g1, cuda_resources->d_g2);
     SWAP(ptrdiff_t, s1, s2);
     dtdx = -dtdx; // need to flip derivative sign
   }
@@ -926,6 +927,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
   (void)c;   // currently unused
   if (!g1) { // swap g1 and g2
     SWAP(const RPR, g1, g2);
+    SWAP(RPR, cuda_resources->d_g1, cuda_resources->d_g2);
     SWAP(ptrdiff_t, s1, s2);
     SWAP(realnum, k1, k2); // need to swap in cross product
   }

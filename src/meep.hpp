@@ -1459,9 +1459,11 @@ typedef struct polarization_state_s {
   struct polarization_state_s *next; // linked list
 } polarization_state;
 
+#ifdef MEEP_WITH_CUDA
 namespace cuda {
 class CudaResourceManager;
 } // namespace cuda
+#endif
 
 class fields_chunk {
 public:

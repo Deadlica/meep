@@ -26,8 +26,6 @@ public:
   void init(fields_chunk* chunk);
   void free_resources();
 
-  realnum* get_d_field(component c, int cmp);
-
   void sync_to_device(fields_chunk* chunk, component cc, int cmp,
                       direction dsig, direction dsigu, direction d_c,
                       realnum* f_p, realnum* f_m);
