@@ -24,14 +24,20 @@ public:
   ~CudaResourceManager();
 
   void init(fields_chunk* chunk);
+  void init_async_resources(fields_chunk* chunk);
   void free_resources();
 
   void sync_to_device(fields_chunk* chunk, component cc, int cmp,
                       direction dsig, direction dsigu, direction d_c,
                       realnum* f_p, realnum* f_m);
+  void sync_to_device_async(fields_chunk* chunk, component cc, int cmp,
+                           direction dsig, direction dsigu, direction d_c,
+                           realnum* f_p, realnum* f_m);
   void sync_from_device(fields_chunk* chunk, component cc, int cmp);
+  void sync_from_device_async(fields_chunk* chunk, component cc, int cmp);
 
-//private:
+  void wait_for_transfers(fields_chunk* chunk, component cc, int cmp);
+
   bool initialized;
 
   // Read/Write
@@ -58,6 +64,23 @@ public:
 
   realnum* d_conductivity;
   realnum* d_condinv;
+
+  // Async resources
+  bool async_enabled;
+
+  cudaStream_t compute_stream;
+  cudaStream_t h2d_stream;
+  cudaStream_t d2h_stream;
+
+  realnum* h_f_pinned;
+  realnum* h_f_u_pinned;
+  realnum* h_f_cond_pinned;
+  realnum* h_f_bfast_pinned;
+  realnum* h_g1_pinned;
+  realnum* h_g2_pinned;
+
+  component current_cc;
+  int current_cmp;
 };
 
 } // namespace cuda

@@ -727,7 +727,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
     if (dsigu == NO_DIRECTION) { // no fu update
       if (cnd) {
         if (g2) {
-          step_curl_kernel1<<<dg, db>>>(
+          step_curl_kernel1<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_g1, cuda_resources->d_g2,
             s1, s2, dtdx, dt, cuda_resources->d_conductivity, cuda_resources->d_condinv,
             loop_n1, loop_n2, loop_n3,
@@ -735,7 +735,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
           );
         }
         else {
-          step_curl_kernel2<<<dg, db>>>(
+          step_curl_kernel2<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_g1, s1, dtdx, dt,
             cuda_resources->d_conductivity, cuda_resources->d_condinv,
             loop_n1, loop_n2, loop_n3,
@@ -745,14 +745,14 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
       }
       else { // no conductivity
         if (g2) {
-          step_curl_kernel3<<<dg, db>>>(
+          step_curl_kernel3<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_g1, cuda_resources->d_g2,
             s1, s2, dtdx, loop_n1, loop_n2, loop_n3,
             loop_s1, loop_s2, loop_s3, idx0
           );
         }
         else {
-          step_curl_kernel4<<<dg, db>>>(
+          step_curl_kernel4<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_g1,
             s1, dtdx, loop_n1, loop_n2, loop_n3,
             loop_s1, loop_s2, loop_s3, idx0
@@ -764,7 +764,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
       KSTRIDE_DEF(dsigu, ku, is, gv);
       if (cnd) {
         if (g2) {
-          step_curl_kernel5<<<dg, db>>>(
+          step_curl_kernel5<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_g1,
             cuda_resources->d_g2, cuda_resources->d_sigu, cuda_resources->d_kapu,
             cuda_resources->d_siginvu, s1, s2, dtdx, dt,
@@ -774,7 +774,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
           );
         }
         else {
-          step_curl_kernel6<<<dg, db>>>(
+          step_curl_kernel6<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_g1,
             cuda_resources->d_sigu, cuda_resources->d_kapu, cuda_resources->d_siginvu,
             s1, dtdx, dt, cuda_resources->d_conductivity, cuda_resources->d_condinv,
@@ -785,7 +785,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
       }
       else { // no conductivity
         if (g2) {
-          step_curl_kernel7<<<dg, db>>>(
+          step_curl_kernel7<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_g1,
             cuda_resources->d_g2, cuda_resources->d_sigu, cuda_resources->d_kapu,
             cuda_resources->d_siginvu, s1, s2, dtdx, ku0, sku1, sku2, sku3,
@@ -794,7 +794,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
           );
         }
         else {
-          step_curl_kernel8<<<dg, db>>>(
+          step_curl_kernel8<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_g1,
             cuda_resources->d_sigu, cuda_resources->d_kapu, cuda_resources->d_siginvu,
             s1, dtdx, ku0, sku1, sku2, sku3,
@@ -812,7 +812,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
       if (cnd) {
         realnum dt2 = dt * 0.5;
         if (g2) {
-          step_curl_kernel9<<<dg, db>>>(
+          step_curl_kernel9<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_cond, cuda_resources->d_g1,
             cuda_resources->d_g2, cuda_resources->d_sig, cuda_resources->d_kap,
             cuda_resources->d_siginv, s1, s2, dtdx, dt,
@@ -822,7 +822,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
           );
         }
         else {
-          step_curl_kernel10<<<dg, db>>>(
+          step_curl_kernel10<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_cond, cuda_resources->d_g1,
             cuda_resources->d_sig, cuda_resources->d_kap, cuda_resources->d_siginv,
             s1, dtdx, dt, cuda_resources->d_conductivity, cuda_resources->d_condinv,
@@ -834,7 +834,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
       }
       else { // no conductivity (other than PML conductivity)
         if (g2) {
-          step_curl_kernel11<<<dg, db>>>(
+          step_curl_kernel11<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_g1, cuda_resources->d_g2,
             cuda_resources->d_sig, cuda_resources->d_kap, cuda_resources->d_siginv,
             s1, s2, dtdx, k0, sk1, sk2, sk3, loop_n1, loop_n2, loop_n3,
@@ -842,7 +842,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
           );
         }
         else {
-          step_curl_kernel12<<<dg, db>>>(
+          step_curl_kernel12<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_g1,
             cuda_resources->d_sig, cuda_resources->d_kap, cuda_resources->d_siginv,
             s1, dtdx, k0, sk1, sk2, sk3, loop_n1, loop_n2, loop_n3,
@@ -856,7 +856,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
       if (cnd) {
         if (g2) {
           //////////////////// MOST GENERAL CASE //////////////////////
-          step_curl_kernel13<<<dg, db>>>(
+          step_curl_kernel13<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_cond,
             cuda_resources->d_g1, cuda_resources->d_g2, cuda_resources->d_sig,
             cuda_resources->d_kap, cuda_resources->d_siginv, cuda_resources->d_sigu,
@@ -868,7 +868,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
           /////////////////////////////////////////////////////////////
         }
         else {
-          step_curl_kernel14<<<dg, db>>>(
+          step_curl_kernel14<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_cond,
             cuda_resources->d_g1, cuda_resources->d_sig, cuda_resources->d_kap,
             cuda_resources->d_siginv, cuda_resources->d_sigu, cuda_resources->d_kapu,
@@ -881,7 +881,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
       }
       else { // no conductivity (other than PML conductivity)
         if (g2) {
-          step_curl_kernel15<<<dg, db>>>(
+          step_curl_kernel15<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_g1,
             cuda_resources->d_g2, cuda_resources->d_sig, cuda_resources->d_kap,
             cuda_resources->d_siginv, cuda_resources->d_sigu, cuda_resources->d_kapu,
@@ -890,7 +890,7 @@ void cuda_step_curl(RPR f, component c, const RPR g1, const RPR g2, ptrdiff_t s1
           );
         }
         else {
-          step_curl_kernel16<<<dg, db>>>(
+          step_curl_kernel16<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_g1,
             cuda_resources->d_sig, cuda_resources->d_kap, cuda_resources->d_siginv,
             cuda_resources->d_sigu, cuda_resources->d_kapu, cuda_resources->d_siginvu,
@@ -959,14 +959,14 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
     if (dsigu == NO_DIRECTION) { // no fu update
       if (cnd) {
         if (g2) {
-          step_bfast_kernel1<<<dg, db>>>(
+          step_bfast_kernel1<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_bfast, cuda_resources->d_g1,
             cuda_resources->d_g2, s1, s2, k1, k2, cuda_resources->d_condinv,
             loop_n1, loop_n2, loop_n3, loop_s1, loop_s2, loop_s3, idx0
           );
         }
         else {
-          step_bfast_kernel2<<<dg, db>>>(
+          step_bfast_kernel2<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_bfast, cuda_resources->d_g1,
             s1, k1, cuda_resources->d_condinv, loop_n1, loop_n2, loop_n3,
             loop_s1, loop_s2, loop_s3, idx0
@@ -975,14 +975,14 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
       }
       else { // no conductivity
         if (g2) {
-          step_bfast_kernel3<<<dg, db>>>(
+          step_bfast_kernel3<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_bfast, cuda_resources->d_g1,
             cuda_resources->d_g2, s1, s2, k1, k2, loop_n1, loop_n2, loop_n3,
             loop_s1, loop_s2, loop_s3, idx0
           );
         }
         else {
-          step_bfast_kernel4<<<dg, db>>>(
+          step_bfast_kernel4<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_bfast, cuda_resources->d_g1,
             s1, k1, loop_n1, loop_n2, loop_n3, loop_s1, loop_s2, loop_s3, idx0
           );
@@ -993,7 +993,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
       KSTRIDE_DEF(dsigu, ku, is, gv);
       if (cnd) {
         if (g2) {
-          step_bfast_kernel5<<<dg, db>>>(
+          step_bfast_kernel5<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_bfast,
             cuda_resources->d_g1, cuda_resources->d_g2, cuda_resources->d_siginvu,
             s1, s2, k1, k2, cuda_resources->d_condinv, ku0, sku1, sku2, sku3,
@@ -1001,7 +1001,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
           );
         }
         else {
-          step_bfast_kernel6<<<dg, db>>>(
+          step_bfast_kernel6<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_bfast,
             cuda_resources->d_g1, cuda_resources->d_siginvu, s1, k1,
             cuda_resources->d_condinv, ku0, sku1, sku2, sku3,
@@ -1011,7 +1011,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
       }
       else { // no conductivity
         if (g2) {
-          step_bfast_kernel7<<<dg, db>>>(
+          step_bfast_kernel7<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_bfast,
             cuda_resources->d_g1, cuda_resources->d_g2, cuda_resources->d_siginvu,
             s1, s2, k1, k2, ku0, sku1, sku2, sku3,
@@ -1019,7 +1019,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
           );
         }
         else {
-          step_bfast_kernel8<<<dg, db>>>(
+          step_bfast_kernel8<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_bfast,
             cuda_resources->d_g1, cuda_resources->d_siginvu, s1, k1, ku0, sku1,
             sku2, sku3, loop_n1, loop_n2, loop_n3, loop_s1, loop_s2, loop_s3, idx0
@@ -1034,7 +1034,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
     if (dsigu == NO_DIRECTION) { // no fu update
       if (cnd) {
         if (g2) {
-          step_bfast_kernel9<<<dg, db>>>(
+          step_bfast_kernel9<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_cond, cuda_resources->d_f_bfast,
             cuda_resources->d_g1, cuda_resources->d_g2, cuda_resources->d_siginv,
             s1, s2, k1, k2, cuda_resources->d_condinv, k0, sk1, sk2, sk3,
@@ -1042,7 +1042,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
           );
         }
         else {
-          step_bfast_kernel10<<<dg, db>>>(
+          step_bfast_kernel10<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_cond, cuda_resources->d_f_bfast,
             cuda_resources->d_g1, cuda_resources->d_siginv,
             s1, k1, cuda_resources->d_condinv, k0, sk1, sk2, sk3,
@@ -1053,14 +1053,14 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
       }
       else { // no conductivity (other than PML conductivity)
         if (g2) {
-          step_bfast_kernel11<<<dg, db>>>(
+          step_bfast_kernel11<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_bfast, cuda_resources->d_g1,
             cuda_resources->d_g2, cuda_resources->d_siginv, s1, s2, k1, k2, k0,
             sk1, sk2, sk3, loop_n1, loop_n2, loop_n3, loop_s1, loop_s2, loop_s3, idx0
           );
         }
         else {
-          step_bfast_kernel12<<<dg, db>>>(
+          step_bfast_kernel12<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_bfast, cuda_resources->d_g1,
             cuda_resources->d_siginv, s1, k1, k0, sk1, sk2, sk3,
             loop_n1, loop_n2, loop_n3, loop_s1, loop_s2, loop_s3, idx0
@@ -1073,7 +1073,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
       if (cnd) {
         if (g2) {
           //////////////////// MOST GENERAL CASE //////////////////////
-          step_bfast_kernel13<<<dg, db>>>(
+          step_bfast_kernel13<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_cond,
             cuda_resources->d_f_bfast, cuda_resources->d_g1, cuda_resources->d_g2,
             cuda_resources->d_siginv, cuda_resources->d_siginvu, s1, s2, k1, k2,
@@ -1083,7 +1083,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
           /////////////////////////////////////////////////////////////
         }
         else {
-          step_bfast_kernel14<<<dg, db>>>(
+          step_bfast_kernel14<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_cond,
             cuda_resources->d_f_bfast, cuda_resources->d_g1, cuda_resources->d_siginv,
             cuda_resources->d_siginvu, s1, k1, cuda_resources->d_condinv,
@@ -1095,7 +1095,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
       }
       else { // no conductivity (other than PML conductivity)
         if (g2) {
-          step_bfast_kernel15<<<dg, db>>>(
+          step_bfast_kernel15<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_bfast,
             cuda_resources->d_g1, cuda_resources->d_g2, cuda_resources->d_siginv,
             cuda_resources->d_siginvu, s1, s2, k1, k2, k0, sk1, sk2, sk3, ku0, sku1,
@@ -1103,7 +1103,7 @@ void cuda_step_bfast(RPR f, component c, const RPR g1, const RPR g2,
           );
         }
         else {
-          step_bfast_kernel16<<<dg, db>>>(
+          step_bfast_kernel16<<<dg, db, 0, cuda_resources->compute_stream>>>(
             cuda_resources->d_f, cuda_resources->d_f_u, cuda_resources->d_f_bfast,
             cuda_resources->d_g1, cuda_resources->d_siginv, cuda_resources->d_siginvu,
             s1, k1, k0, sk1, sk2, sk3, ku0, sku1, sku2, sku3,

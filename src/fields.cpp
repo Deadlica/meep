@@ -311,6 +311,8 @@ fields_chunk::fields_chunk(structure_chunk *the_s, const char *od, double m, dou
 #ifdef MEEP_WITH_CUDA
   cuda_resources = new cuda::CudaResourceManager();
   cuda_resources->init(this);
+  // Async memory transfer
+  cuda_resources->init_async_resources(this);
 #endif
 }
 
@@ -411,6 +413,8 @@ fields_chunk::fields_chunk(const fields_chunk &thef, int chunkidx) : gv(thef.gv)
 #ifdef MEEP_WITH_CUDA
   cuda_resources = new cuda::CudaResourceManager();
   cuda_resources->init(this);
+  // Async memory transfer
+  cuda_resources->init_async_resources(this);
 #endif
 }
 

@@ -126,7 +126,7 @@ bool fields_chunk::step_db(field_type ft) {
           }
 
 #ifdef MEEP_WITH_CUDA
-        cuda_resources->sync_to_device(this, cc, cmp, dsig, dsigu, d_c, f_p, f_m);
+        cuda_resources->sync_to_device_async(this, cc, cmp, dsig, dsigu, d_c, f_p, f_m);
         STEP_CURL(the_f, cc, f_p, f_m, stride_p, stride_m, gv, sub_gv.little_owned_corner0(cc),
                   sub_gv.big_corner(), Courant, dsig, s->sig[dsig], s->kap[dsig], s->siginv[dsig],
                   f_u[cc][cmp], dsigu, s->sig[dsigu], s->kap[dsigu], s->siginv[dsigu], dt,
@@ -162,7 +162,8 @@ bool fields_chunk::step_db(field_type ft) {
 #endif
         }
 #ifdef MEEP_WITH_CUDA
-        cuda_resources->sync_from_device(this, cc, cmp);
+        cuda_resources->sync_from_device_async(this, cc, cmp);
+        cuda_resources->wait_for_transfers(this, cc, cmp);
 #endif
       }
     }
